@@ -101,12 +101,17 @@
 
 - The PDK is no longer versioned
   [#8585](https://github.com/Kong/kong/pull/8585)
+- Plugins MUST now have a valid `PRIORITY` (integer) and `VERSION` ("x.y.z" format)
+  field in their `handler.lua` file, otherwise the plugin will fail to load.
+  [#8836](https://github.com/Kong/kong/pull/8836)
 
 #### Plugins
 
 - The HTTP-log plugin `headers` field now only takes a single string per header name,
   where it previously took an array of values
   [#6992](https://github.com/Kong/kong/pull/6992)
+- The pre-functions plugin changed priority from `+inf` to `1000000`.
+  [#8836](https://github.com/Kong/kong/pull/8836)
 
 ### Deprecations
 
