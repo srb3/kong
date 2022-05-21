@@ -130,7 +130,7 @@ local load_plugin_handler do
 
   local function valid_priority(prio)
     if type(prio) ~= "number" or
-       prio == (0/0) or  -- NaN
+       prio ~= prio or  -- NaN
        math.abs(prio) == math.huge or
        math.floor(prio) ~= prio then
       return false
