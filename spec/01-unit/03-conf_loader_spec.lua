@@ -1534,6 +1534,14 @@ describe("Configuration loader", function()
       assert.equal("LOCAL_QUORUM", conf.cassandra_write_consistency)
     end)
 
+    it("worker_consistency -> deprecate strict", function()
+      local conf, err = assert(conf_loader(nil, {
+        worker_consistency = "strict"
+      }))
+      assert.equal("strict", conf.worker_consistency)
+      assert.equal(nil, err)
+    end)
+
     it("upstream_keepalive -> nginx_http_upstream_keepalive + nginx_upstream_keepalive", function()
       -- accepted values:
       -- * upstream_keepalive >= 0
