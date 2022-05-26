@@ -110,7 +110,7 @@ local function init()
                                                  {"service", "route"},
                                                  UPSTREAM_LATENCY_BUCKETS)
   else
-    metrics.total_latency = prometheus:histogram("tcp_session_duration_ms",
+    metrics.total_latency = prometheus:histogram("session_duration_ms",
                                                  "latency incurred in stream tcp session " ..
                                                  "for each service/route in Kong",
                                                  {"service", "route"},
