@@ -6,8 +6,6 @@ local ws_client = require("resty.websocket.client")
 local cjson = require("cjson.safe")
 local declarative = require("kong.db.declarative")
 local constants = require("kong.constants")
-local utils = require("kong.tools.utils")
-local clustering_utils = require("kong.clustering.utils")
 local assert = assert
 local setmetatable = setmetatable
 local math = math
@@ -22,8 +20,8 @@ local cjson_encode = cjson.encode
 local kong = kong
 local exiting = ngx.worker.exiting
 local ngx_time = ngx.time
-local inflate_gzip = utils.inflate_gzip
-local deflate_gzip = utils.deflate_gzip
+
+local inflate_gzip = require("kong.tools.utils").inflate_gzip
 
 
 local KONG_VERSION = kong.version
@@ -60,22 +58,10 @@ function _M.new(parent)
 end
 
 
-function _M:encode_config(config)
-  return deflate_gzip(config)
-end
-
-
-function _M:decode_config(config)
-  return inflate_gzip(config)
-end
-
-
 function _M:init_worker()
   -- ROLE = "data_plane"
 
   if ngx.worker.id() == 0 then
-    clustering_utils.load_config_cache(self)
-
     assert(ngx.timer.at(0, function(premature)
       self:communicate(premature)
     end))
@@ -126,8 +112,10 @@ function _M:communicate(premature)
     client_cert = self.cert,
     client_priv_key = self.cert_key,
   }
+
   if conf.cluster_mtls == "shared" then
     opts.server_name = "kong_clustering"
+
   else
     -- server_name will be set to the host if it is not explicitly defined here
     if conf.cluster_server_name ~= "" then
@@ -195,7 +183,7 @@ function _M:communicate(premature)
           local hashes = self.next_hashes
 
           local pok, res
-          pok, res, err = pcall(self.update_config, self, config_table, config_hash, true, hashes)
+          pok, res, err = pcall(self.update_config, self, config_table, config_hash, hashes)
           if pok then
             if not res then
               ngx_log(ngx_ERR, _log_prefix, "unable to update running config: ", err)

@@ -66,13 +66,10 @@
 
 ### Fixes
 
-#### PDK
-
-- `pdk.response.set_header()`, `pdk.response.set_headers()`, `pdk.response.exit()` now ignore and emit warnings for manually set `Transfer-Encoding` headers.
-  [#8698](https://github.com/Kong/kong/pull/8698)
-
 ### Breaking Changes
 
+- Deprecate/stop producing Amazon Linux (1) containers and packages (EOLed December 31, 2020)
+  [Kong/docs.konghq.com #3966](https://github.com/Kong/docs.konghq.com/pull/3966)
 - Deprecate/stop producing Debian 8 "Jessie" containers and packages (EOLed June 2020)
   [Kong/kong-build-tools #448](https://github.com/Kong/kong-build-tools/pull/448)
   [Kong/kong-distributions #766](https://github.com/Kong/kong-distributions/pull/766)
@@ -82,6 +79,29 @@
   the time comes from a driver like `pgmoon` or `lmdb`. This was done for performance
   reasons. Deep copying on `"select"` context can still be done before calling this
   function. [#8796](https://github.com/Kong/kong/pull/8796)
+- The deprecated alias of `Kong.serve_admin_api` was removed. If your custom Nginx
+  templates still use it, please change it to `Kong.admin_content`.
+  [#8815](https://github.com/Kong/kong/pull/8815)
+- The deprecated `shorthands` field in Kong Plugin or DAO schemas was removed in favor
+  or the typed `shorthand_fields`. If your custom schemas still use `shorthands`, you
+  need to update them to use `shorhand_fields`.
+  [#8815](https://github.com/Kong/kong/pull/8815)
+- The support for deprecated legacy plugin schemas was removed. If your custom plugins
+  still use the old (`0.x era`) schemas, you are now forced to upgrade them.
+  [#8815](https://github.com/Kong/kong/pull/8815)
+- The old `kong.plugins.log-serializers.basic` library was removed in favor of the PDK
+  function `kong.log.serialize`, please upgrade your plugins to use PDK.
+  [#8815](https://github.com/Kong/kong/pull/8815)
+- The Kong constant `CREDENTIAL_USERNAME` with value of `X-Credential-Username` was
+  removed. Kong plugins in general have moved (since [#5516](https://github.com/Kong/kong/pull/5516))
+  to use constant `CREDENTIAL_IDENTIFIER` with value of `X-Credential-Identifier` when
+  setting  the upstream headers for a credential.
+  [#8815](https://github.com/Kong/kong/pull/8815)
+- The support for deprecated hash structured custom plugin DAOs (using `daos.lua`) was
+  removed. Please upgrade the legacy plugin DAO schemas.
+  [#8815](https://github.com/Kong/kong/pull/8815)
+- The dataplane config cache was removed. The config persistence is now done automatically with LMDB.
+  [#8704](https://github.com/Kong/kong/pull/8704)
 
 #### Admin API
 
@@ -98,7 +118,8 @@
   [#8810](https://github.com/Kong/kong/pull/8810)
 
 #### PDK
-
+- `pdk.response.set_header()`, `pdk.response.set_headers()`, `pdk.response.exit()` now ignore and emit warnings for manually set `Transfer-Encoding` headers.
+  [#8698](https://github.com/Kong/kong/pull/8698)
 - The PDK is no longer versioned
   [#8585](https://github.com/Kong/kong/pull/8585)
 
@@ -137,6 +158,8 @@
 
 ### Dependencies
 
+- Bumped OpenResty from 1.19.9.1 to [1.21.4.1](https://openresty.org/en/changelog-1021004.html)
+  [#8850](https://github.com/Kong/kong/pull/8850)
 - Bumped pgmoon from 1.13.0 to 1.14.0
   [#8429](https://github.com/Kong/kong/pull/8429)
 - OpenSSL bumped to from 1.1.1n to 1.1.1o
@@ -155,6 +178,8 @@
   [#8754](https://github.com/Kong/kong/pull/8754)
 - Bumped resty.healthcheck from 1.5.0 to 1.5.1
   [#8755](https://github.com/Kong/kong/pull/8755)
+- Bumped resty.cassandra from 1.5.1 to 1.5.2
+  [#8845](https://github.com/Kong/kong/pull/8845)
 
 ### Additions
 
@@ -162,6 +187,12 @@
 
 - Added `cache_key` on target entity for uniqueness detection.
   [#8179](https://github.com/Kong/kong/pull/8179)
+- Introduced the tracing API which compatible with OpenTelemetry API spec and
+  add build-in instrumentations.  
+  The tracing API is intend to be used with a external exporter plugin.  
+  Build-in instrumentation types and sampling rate are configuable through
+  `opentelemetry_tracing` and `opentelemetry_tracing_sampling_rate` options.
+ [#8724](https://github.com/Kong/kong/pull/8724)
 
 #### Plugins
 
@@ -455,6 +486,24 @@ In this release we continued our work on better performance:
 - Old `BasePlugin` is deprecated and will be removed in a future version of Kong.
   Porting tips in the [documentation](https://docs.konghq.com/gateway-oss/2.3.x/plugin-development/custom-logic/#porting-from-old-baseplugin-style)
 - The deprecated **BasePlugin** has been removed. [#7961](https://github.com/Kong/kong/pull/7961)
+
+### Configuration
+
+- Removed the following config options, which had been deprecated in previous versions, in favor of other config names. If you have any of these options in your config you will have to rename them: (removed option -> current option).
+  - upstream_keepalive -> nginx_upstream_keepalive + nginx_http_upstream_keepalive
+  - nginx_http_upstream_keepalive -> nginx_upstream_keepalive
+  - nginx_http_upstream_keepalive_requests -> nginx_upstream_keepalive_requests
+  - nginx_http_upstream_keepalive_timeout -> nginx_upstream_keepalive_timeout
+  - nginx_http_upstream_directives -> nginx_upstream_directives
+  - nginx_http_status_directives -> nginx_status_directives
+  - nginx_upstream_keepalive -> upstream_keepalive_pool_size
+  - nginx_upstream_keepalive_requests -> upstream_keepalive_max_requests
+  - nginx_upstream_keepalive_timeout -> upstream_keepalive_idle_timeout
+  - client_max_body_size -> nginx_http_client_max_body_size
+  - client_body_buffer_size -> nginx_http_client_max_buffer_size
+  - cassandra_consistency -> cassandra_write_consistency / cassandra_read_consistency
+  - router_update_frequency -> worker_state_update_frequency
+- Removed the nginx_optimizations config option. If you have it in your configuration, please remove it before updating to 3.0.
 
 ### Fixes
 
