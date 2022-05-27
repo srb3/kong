@@ -1342,7 +1342,7 @@
                                  #   synchronously, causing incoming requests to
                                  #   be delayed until the rebuild is finished.
                                  #   (This option is deprecated and will be
-                                 #    in future releases removed)
+                                 #    removed in future releases)
                                  # - `eventual`: the router will be rebuilt
                                  #   asynchronously via a recurring background
                                  #   job running every second inside of each
