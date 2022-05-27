@@ -399,8 +399,7 @@ the [docs](https://docs.konghq.com/gateway/2.7.x/reference/external-plugins/).
 
 #### Configuration
 
-- Deprecated `strict` mode of config option `worker_consistency` in favor of `eventual`.
-  Note that `eventual` is now the new default
+- Deprecated `strict` mode of config directive `worker_consistency` in favor of `eventual`, which is now the new default.
 
 #### Performance
 
